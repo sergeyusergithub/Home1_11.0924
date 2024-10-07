@@ -31,10 +31,18 @@ namespace Home1
 
         private void FillMechanicsName()
         {
-            foreach (string name in DBWork.GetMechanics())
+            List<Mechanics> count_data = DBWork.SelectDataMechanics();
+            
+
+            foreach (var item in count_data)
+            {
+                cmbMechanics.Items.Add(item.Name);
+            }
+
+            /*foreach (string name in DBWork.GetMechanics())
             {
                 cmbMechanics.Items.Add(name);
-            }
+            }*/
         }
 
         private void picBoxAvatar_Click(object sender, EventArgs e)
@@ -85,22 +93,67 @@ namespace Home1
            
         }
 
+        // выбор свободного номера механика, который добавляется в таблицу
+        private  long GetNumber(List<long> numb)
+        {
+            long result = 0;
+            var _numb = numb.OrderBy(x=>x).ToList();
+            result = numb[0];
+
+            foreach (long num in _numb)
+            {
+                if (num != result)
+                {
+                    return result;
+                } else
+                {
+                    result++;
+                }
+            }
+
+            return result;
+        }
+
+        // добавление механика в БД
         private void btnAddMechanic_Click(object sender, EventArgs e)
         {
             if (tbNameMechanic.Text != string.Empty)
             {
-                List<long> _number;
-                _number = DBWork.SelectData<long>("Mechanics", "number");
-
-                foreach (int item in _number)
+                List<Mechanics> _list_mch;
+                _list_mch = DBWork.SelectDataMechanics();
+                List<long> ints = new List<long>();
+                
+                foreach(var item in _list_mch)
                 {
-                    lstTmp.Items.Add(item);
+                    ints.Add(item.Number);
                 }
 
-                DBWork.InsertData("Mechanics", "number,name", $"6,'{tbNameMechanic.Text}'");
+                long mch_numb = GetNumber(ints);
+
+                
+
+                DBWork.InsertData("Mechanics", "number,name", $"{mch_numb},'{tbNameMechanic.Text}'");
                 cmbMechanics.Items.Clear();
                 FillMechanicsName();
             }
+        }
+
+        // удаление механика из БД
+        private void btnDeleteMechanic_Click(object sender, EventArgs e)
+        {         
+           
+            int _mch_number = cmbMechanics.SelectedIndex;
+            List<Mechanics> count_data = DBWork.SelectDataMechanics();
+
+            DBWork.DeleteMechanics(Convert.ToInt32(count_data[_mch_number].Number), count_data[_mch_number].Name);
+
+            
+            cmbMechanics.Items.Clear();
+            cmbMechanics.Text = string.Empty;
+            picBoxAvatar.BackColor = Color.Black;
+            picBoxAvatar.Image = null;
+            FillMechanicsName();
+
         }
     }
 }

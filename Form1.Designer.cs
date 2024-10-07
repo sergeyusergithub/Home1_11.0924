@@ -91,6 +91,7 @@
             this.btnDeleteMechanic.TabIndex = 4;
             this.btnDeleteMechanic.Text = "Удалить механика";
             this.btnDeleteMechanic.UseVisualStyleBackColor = true;
+            this.btnDeleteMechanic.Click += new System.EventHandler(this.btnDeleteMechanic_Click);
             // 
             // tbNameMechanic
             // 

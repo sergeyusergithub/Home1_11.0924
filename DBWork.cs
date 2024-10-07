@@ -178,13 +178,13 @@ namespace Home1
         }
 
         // получить данные из таблицы: имя таблицы, строка параметров
-        static public List<T> SelectData<T>(string table_name, string parameter_name)
+        static public List<Mechanics> SelectDataMechanics()
         {
-            string cmd_select_data = $"SELECT {parameter_name} " +
-                $"FROM  {table_name};";
+            string cmd_select_data = $"SELECT number,name,avatar " +
+                $"FROM  Mechanics;";
 
 
-            List<T> result = null;
+            List<Mechanics> result = new List<Mechanics>();
 
             using (SQLiteConnection conn = new SQLiteConnection(path))
             {
@@ -197,13 +197,23 @@ namespace Home1
                 {
                     while (reader.Read())
                     {
-                        T tmp = (T)reader.GetValue(0);
-                        if (tmp != null)
+                        Mechanics tmp;
+                        if (reader.GetValue(2).Equals(null))
                         {
-                            result.Add((T)tmp);
+                            tmp = new Mechanics{ Number = (long)reader.GetValue(0), Name = (string)reader.GetValue(1), Avatar = (byte[])reader.GetValue(2) };
 
                         } else
                         {
+                            tmp = new Mechanics { Number = (long)reader.GetValue(0), Name = (string)reader.GetValue(1) };
+                        }
+                        
+                        if (tmp != null)
+                        {
+                            result.Add(tmp);
+
+                        } else
+                        {
+                            
                             
                         }
 
@@ -214,6 +224,23 @@ namespace Home1
             return result;
 
         }
+
+        public static void DeleteMechanics(int number, string name)
+        {
+            string cmd_delete_data = $"DELETE FROM  Mechanics" +
+                $" WHERE (name = '{name}') AND (number = {number});";
+
+
+            using (SQLiteConnection conn = new SQLiteConnection(path))
+            {
+                SQLiteCommand command = new SQLiteCommand(conn);
+                command.CommandText = cmd_delete_data;
+                conn.Open();
+                command.ExecuteNonQuery();
+
+            }
+
+        } 
 
     }
 }
